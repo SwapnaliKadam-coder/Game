@@ -1,0 +1,288 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rock Paper Scissors - Opposite Logic</title>
+  <style>
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: #f4f8fa;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      background-color: #081b31;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .players {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin: 30px 0;
+    }
+
+    .player {
+      flex: 1;
+      min-width: 300px;
+      margin: 10px;
+      padding: 20px;
+      border: 2px solid #081b31;
+      border-radius: 10px;
+      background-color: #fff;
+    }
+
+    .choices {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .choice {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid #081b31;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .choice:hover {
+      transform: scale(1.05);
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .score-box {
+      font-size: 20px;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #d6eaff;
+      display: inline-block;
+    }
+
+    #msg {
+      margin-top: 20px;
+      font-size: 24px;
+      padding: 15px;
+      background-color: #081b31;
+      color: white;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    .timer {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+
+    .history {
+      margin-top: 30px;
+      text-align: left;
+      max-width: 600px;
+      margin-inline: auto;
+    }
+
+    .history h3 {
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul li {
+      background: #eef;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .choices {
+        flex-direction: column;
+      }
+
+      .choice {
+        width: 80px;
+        height: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Rock Paper Scissors - Opposite Logic</h1>
+
+  <div class="players">
+    <div class="player">
+      <h2>Player 1 (A/S/D)</h2>
+      <div class="choices" id="player1-choices">
+        <div class="choice" data-choice="Rock"><img src="img2.jpeg" alt="Rock"></div>
+        <div class="choice" data-choice="Paper"><img src="img3.jpeg" alt="Paper"></div>
+        <div class="choice" data-choice="Scissors"><img src="img4.jpeg" alt="Scissors"></div>
+      </div>
+    </div>
+    <div class="player">
+      <h2>Player 2 (J/K/L)</h2>
+      <div class="choices" id="player2-choices">
+        <div class="choice" data-choice="Rock"><img src="img2.jpeg" alt="Rock"></div>
+        <div class="choice" data-choice="Paper"><img src="img3.jpeg" alt="Paper"></div>
+        <div class="choice" data-choice="Scissors"><img src="img4.jpeg" alt="Scissors"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="score-box">Player 1 Score: <span id="score1">0</span></div>
+  <div class="score-box">Player 2 Score: <span id="score2">0</span></div>
+
+  <div class="timer" id="timer">⏳ Timer: 10s</div>
+
+  <p id="msg">Both players, make your moves!</p>
+
+  <div class="history">
+    <h3>Round History</h3>
+    <ul id="round-history"></ul>
+  </div>
+
+  <audio id="clickSound" src="click.mp3"></audio>
+  <audio id="winSound" src="win.mp3"></audio>
+
+  <script>
+    let player1Choice = "", player2Choice = "";
+    let player1Score = 0, player2Score = 0;
+    const timerEl = document.getElementById("timer");
+    const msg = document.getElementById("msg");
+    const score1 = document.getElementById("score1");
+    const score2 = document.getElementById("score2");
+    const historyEl = document.getElementById("round-history");
+    const clickSound = document.getElementById("clickSound");
+    const winSound = document.getElementById("winSound");
+
+    const playSound = (sound) => {
+      sound.currentTime = 0;
+      sound.play();
+    };
+
+    const updateHistory = (result) => {
+      const li = document.createElement("li");
+      li.textContent = result;
+      historyEl.prepend(li);
+    };
+
+    const checkWinner = () => {
+      if (player1Choice === player2Choice) {
+        msg.innerText = `Draw! Both chose ${player1Choice}`;
+        msg.style.backgroundColor = "#777";
+        updateHistory(`Draw - Both chose ${player1Choice}`);
+      } else if (
+        (player1Choice === "Rock" && player2Choice === "Paper") ||
+        (player1Choice === "Scissors" && player2Choice === "Rock") ||
+        (player1Choice === "Paper" && player2Choice === "Scissors")
+      ) {
+        player1Score++;
+        score1.innerText = player1Score;
+        msg.innerText = `Player 1 Wins! ${player1Choice} loses to ${player2Choice}`;
+        msg.style.backgroundColor = "green";
+        updateHistory(`Player 1 Wins - ${player1Choice} < ${player2Choice}`);
+        playSound(winSound);
+      } else {
+        player2Score++;
+        score2.innerText = player2Score;
+        msg.innerText = `Player 2 Wins! ${player2Choice} loses to ${player1Choice}`;
+        msg.style.backgroundColor = "red";
+        updateHistory(`Player 2 Wins - ${player2Choice} < ${player1Choice}`);
+        playSound(winSound);
+      }
+
+      setTimeout(resetRound, 3000);
+    };
+
+    const resetRound = () => {
+      player1Choice = "";
+      player2Choice = "";
+      msg.innerText = "Both players, make your moves!";
+      msg.style.backgroundColor = "#081b31";
+      startTimer();
+    };
+
+    const handleChoice = (player, choice) => {
+      playSound(clickSound);
+      if (player === 1) {
+        player1Choice = choice;
+        msg.innerText = "Player 1 selected. Waiting for Player 2...";
+      } else {
+        player2Choice = choice;
+        msg.innerText = "Player 2 selected. Waiting for Player 1...";
+      }
+
+      if (player1Choice && player2Choice) {
+        clearInterval(timerInterval);
+        checkWinner();
+      }
+    };
+
+    document.querySelectorAll("#player1-choices .choice").forEach(choice => {
+      choice.addEventListener("click", () => handleChoice(1, choice.dataset.choice));
+    });
+
+    document.querySelectorAll("#player2-choices .choice").forEach(choice => {
+      choice.addEventListener("click", () => handleChoice(2, choice.dataset.choice));
+    });
+
+    // Keyboard controls
+    document.addEventListener("keydown", (e) => {
+      const keyMap = {
+        'a': ["Rock", 1],
+        's': ["Paper", 1],
+        'd': ["Scissors", 1],
+        'j': ["Rock", 2],
+        'k': ["Paper", 2],
+        'l': ["Scissors", 2],
+      };
+      const pressed = keyMap[e.key.toLowerCase()];
+      if (pressed) handleChoice(pressed[1], pressed[0]);
+    });
+
+    // Timer logic
+    let timer = 10;
+    let timerInterval;
+
+    const startTimer = () => {
+      clearInterval(timerInterval);
+      timer = 2;
+      timerEl.innerText = `⏳ Timer: ${timer}s`;
+
+      timerInterval = setInterval(() => {
+        timer--;
+        timerEl.innerText = `⏳ Timer: ${timer}s`;
+        if (timer === 0) {
+          clearInterval(timerInterval);
+          msg.innerText = "⏰ Time's up! Round skipped.";
+          msg.style.backgroundColor = "#888";
+          updateHistory("⏰ Round skipped due to timeout.");
+          setTimeout(resetRound, 2000);
+        }
+      }, 1000);
+    };
+
+    startTimer();
+  </script>
+</body>
+</html>
